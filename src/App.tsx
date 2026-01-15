@@ -1,33 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { BrowserRouter, Routes } from 'react-router'
+import { Route } from 'react-router'
+import HomePage from './pages/HomePage'
+import RegisterPage from './pages/RegisterPage'
+import LoginPage from './pages/LoginPage'
+import { AuthProvider } from './contexts/AuthProvider'
+import { Toaster } from 'react-hot-toast'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { Layout } from './components/Layout'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <div><Toaster /></div>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route index element={<ProtectedRoute><Layout><HomePage /></Layout></ProtectedRoute>} />
+            <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </>
   )
 }
