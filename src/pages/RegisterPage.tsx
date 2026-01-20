@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+import Header from "../components/layout/Header";
 import { useState } from "react";
 import { registerApi } from "../api/auth";
 import toast from 'react-hot-toast';

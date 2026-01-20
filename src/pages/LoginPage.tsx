@@ -1,5 +1,5 @@
-import { Link } from "react-router";
-import Header from "../components/Header";
+import { Link, useNavigate } from "react-router";
+import Header from "../components/layout/Header";
 import { useAuth } from "../hooks/useAuth";
 import { useState } from "react";
 import { loginApi } from "../api/auth";
@@ -9,12 +9,14 @@ export default function LoginPage() {
   const { user, login, logout } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
       const data = await loginApi(email, password);
-      login({ email, authToken: data.token });          
+      login({ email, authToken: data.token, refreshToken: data.refreshToken });
+      navigate('/');
     } catch (error: any) {
       toast.error(error.response.data.errors[0].error);  
     }
