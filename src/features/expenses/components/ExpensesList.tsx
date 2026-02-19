@@ -11,6 +11,9 @@ import type { Expense } from "../../../types/expense";
 import { AddExpenseModal } from "../modals/AddExpenseModal";
 import { DeleteExpenseModal } from "../modals/DeleteExpenseModal";
 import { UpdateExpenseModal } from "../modals/UpdateExpenseModal";
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
+import { deleteExpense } from "../../../api/expenses";
+import { useDeleteExpense } from "../../../hooks/useDeleteExpense";
 
 export const ExpensesList = () => {
   const [page, setPage] = useState(1);
@@ -25,6 +28,7 @@ export const ExpensesList = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
   const [expenseToUpdate, setExpenseToUpdate] = useState<Expense | null>(null);
+  const { mutate, isPending: isDeleting } = useDeleteExpense();
 
   const expenses = expensesListData?.items || [];
 
@@ -53,6 +57,16 @@ export const ExpensesList = () => {
     } else {
       setSortColumn(columnName);
       setSortOrder("asc");
+    }
+  }
+
+  const handleDeleteConfirm = () => {
+    if (expenseToDelete) {
+      mutate(expenseToDelete, {
+        onSuccess: () => {
+          setExpenseToDelete(null);
+        }
+      });
     }
   }
 
@@ -112,10 +126,13 @@ export const ExpensesList = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
       />
-      <DeleteExpenseModal
+      <ConfirmModal
         isOpen={expenseToDelete !== null}
-        expenseId={expenseToDelete}
         onClose={() => setExpenseToDelete(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Expense"
+        description="Are you sure you want to delete this expense? This action cannot be undone."
+        isLoading={isDeleting}
       />
       <UpdateExpenseModal
         isOpen={expenseToUpdate !== null}

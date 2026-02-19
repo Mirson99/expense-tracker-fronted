@@ -8,6 +8,7 @@ export const useCreateExpense = () => {
         mutationFn: createExpense,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] })
+            queryClient.invalidateQueries({ queryKey: ['recurring-expenses'] })
             toast.success("Expense created successfully");
         },
         onError: () => {

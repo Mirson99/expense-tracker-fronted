@@ -1,11 +1,11 @@
-export interface Expense {
+export interface RecurringExpense {
     id: string;
     name: string;
     description: string;
     amount: number;
-    currency: string;
-    date: string;
+    currency: string;    
     categoryName: string;
     categoryId: number;
-    isRecurring: boolean;
+    frequency: string;
+    nextPaymentDate: string;
 }

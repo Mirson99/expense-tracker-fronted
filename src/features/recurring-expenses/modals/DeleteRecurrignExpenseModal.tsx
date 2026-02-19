@@ -1,6 +1,5 @@
 import { ButtonSpinner } from "../../../components/ui/ButtonSpinner";
-import { useDeleteExpense } from "../../../hooks/useDeleteExpense";
-
+import { useDeleteRecurringExpense } from "../../../hooks/useDeleteRecurringExpense";
 
 interface DeleteExpenseModalProps {
     isOpen: boolean;
@@ -8,8 +7,8 @@ interface DeleteExpenseModalProps {
     onClose: () => void;
 }
 
-export const DeleteExpenseModal = ({ isOpen, expenseId, onClose }: DeleteExpenseModalProps) => {
-    const { mutate, isPending } = useDeleteExpense();
+export const DeleteRecurringExpenseModal = ({ isOpen, expenseId, onClose }: DeleteExpenseModalProps) => {
+    const { mutate, isPending } = useDeleteRecurringExpense();
     if (!isOpen) return null;
 
     const handleConfirm = () => {

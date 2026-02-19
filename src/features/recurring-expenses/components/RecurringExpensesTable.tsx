@@ -1,19 +1,18 @@
-import type { Expense } from "../../../types/expense"
-import { getCategoryStyles } from "../../../utils/categoryColors"
-import { formatCurrency, formatDate } from "../../../utils/formatters"
 import { SortableHeader, type SortOrder } from "../../../components/ui/SortableHeader";
+import type { RecurringExpense } from "../../../types/recurringExpense";
+import { getCategoryStyles } from "../../../utils/categoryColors";
+import { formatCurrency, formatDate } from "../../../utils/formatters";
 
-interface ExpensesTableProps {
-    expenses: Expense[];
+interface RecurringExpensesTableProps {
+    expenses: RecurringExpense[];
     isLoading: boolean;
     sortColumn: string;
     sortOrder: SortOrder;
     onSort: (column: string) => void;
-    onDelete: (expenseId: string) => void;
-    setExpenseToUpdate: (expense: Expense) => void;
+    onDelete: (expenseId: string) => void;    
 }
 
-export const ExpensesTable = ({ expenses, isLoading, sortColumn, sortOrder, onSort, onDelete, setExpenseToUpdate }: ExpensesTableProps) => {
+export const RecurringExpensesTable = ({ expenses, isLoading, sortColumn, sortOrder, onSort, onDelete,}: RecurringExpensesTableProps) => {
     if (isLoading) {
         return <div className="p-4 text-center">Ładowanie wydatków... (tu wstawisz ładny Spinner)</div>;
     }
@@ -31,7 +30,7 @@ export const ExpensesTable = ({ expenses, isLoading, sortColumn, sortOrder, onSo
         <thead>
             <tr className="bg-gray-900/50">
                 <SortableHeader
-                    label="Date"
+                    label="Next Execution Date"
                     columnKey="date"
                     currentSortColumn={sortColumn}
                     currentSortOrder={sortOrder}
@@ -61,33 +60,14 @@ export const ExpensesTable = ({ expenses, isLoading, sortColumn, sortOrder, onSo
             </tr>
         </thead>
         <tbody className="divide-y divide-gray-700/50">
-            {expenses.map((expense: Expense) => (
+            {expenses.map((expense: RecurringExpense) => (
                 <tr
                     key={expense.id}
                     className="hover:bg-gray-700/30 transition-colors duration-200 group"
                 >
                     <td className="px-6 py-4 text-sm text-gray-400 whitespace-nowrap text-left">
                         <div className="flex items-center gap-2">
-                            <span>{formatDate(expense.date)}</span>
-
-                            {expense.isRecurring && (
-                                <div className="group relative flex items-center">                                    
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={1.5}
-                                        stroke="currentColor"
-                                        className="w-4 h-4 text-teal-500/80"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                                    </svg>
-                                    
-                                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-gray-700 pointer-events-none z-10">
-                                        Recurring Expense
-                                    </span>
-                                </div>
-                            )}
+                            <span>{formatDate(expense.nextPaymentDate)}</span>                           
                         </div>
                     </td>
 
@@ -112,16 +92,7 @@ export const ExpensesTable = ({ expenses, isLoading, sortColumn, sortOrder, onSo
                         {formatCurrency(expense.amount, expense.currency)}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
-                        <div className="flex gap-3 justify-end">
-                            <button
-                                onClick={() => setExpenseToUpdate(expense)}
-                                className="text-teal-400 hover:text-teal-300 transition-colors hover:cursor-pointer"
-                                title="Edit expense"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
-                                </svg>
-                            </button>
+                        <div className="flex gap-3 justify-end">                            
                             <button
                                 onClick={() => onDelete(expense.id)}
                                 className="text-rose-400 hover:text-rose-300 transition-colors hover:cursor-pointer"

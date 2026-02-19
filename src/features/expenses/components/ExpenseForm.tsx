@@ -1,12 +1,12 @@
 import * as z from "zod";
 import { useCategories } from "../../../hooks/useCategories";
-import { useCreateExpense } from "../../../hooks/useCreateExpense";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ButtonSpinner } from "../../../components/ui/ButtonSpinner";
 import { useEffect } from "react";
 import type { Expense } from "../../../types/expense";
 
+export const FREQUENCIES = ["Daily", "Weekly", "Monthly", "Yearly"] as const;
 
 const expenseSchema = z.object({
     name: z.string().min(1, "Name is required").max(100),
@@ -15,6 +15,16 @@ const expenseSchema = z.object({
     date: z.string(),
     categoryId: z.number({ error: "Category is required" }).min(1, "Please select a category"),
     description: z.string().max(1000).optional(),
+    isRecurring: z.boolean(),
+    frequency: z.enum(FREQUENCIES, { error: "Frequency is required" }).optional().nullable(),
+}).refine((data) => {
+    if (data.isRecurring) {
+        return !!data.frequency;
+    }
+    return true;
+}, {
+    message: "Frequency is required for recurring expenses",
+    path: ["frequency"],
 });
 
 export type ExpenseFormValues = z.infer<typeof expenseSchema>;
@@ -24,43 +34,49 @@ const ErrorMessage = ({ message }: { message?: string }) => {
     return <p className="text-red-400 text-xs mt-1">{message}</p>;
 };
 
-interface ExpenseFormProps {    
-    defaultValues?: Expense;     
-    onSubmit: (data: ExpenseFormValues) => void;     
+interface ExpenseFormProps {
+    defaultValues?: Expense;
+    onSubmit: (data: ExpenseFormValues) => void;
     submitLabel: string;
     onCancel: () => void;
     isPending: boolean;
 }
 
-export const ExpenseForm = ({ defaultValues, onSubmit, submitLabel, onCancel, isPending }: ExpenseFormProps) => {    const { data: categoriesData, isLoading: isCategoriesLoading } = useCategories();    
+export const ExpenseForm = ({ defaultValues, onSubmit, submitLabel, onCancel, isPending }: ExpenseFormProps) => {
+    const { data: categoriesData, isLoading: isCategoriesLoading } = useCategories();
+    const isEditMode = !!defaultValues;    
     const {
         register,
         handleSubmit,
         reset,
-        formState: { errors},
+        formState: { errors },
+        watch
     } = useForm<ExpenseFormValues>({
         resolver: zodResolver(expenseSchema),
         defaultValues: {
             currency: "PLN",
-            date: new Date().toISOString().split('T')[0]
+            date: new Date().toISOString().split('T')[0],
+            isRecurring: false
         }
     });
+    const isRecurring = watch("isRecurring");
 
     useEffect(() => {
-            if (defaultValues) {
-                reset({
-                    name: defaultValues.name,
-                    amount: defaultValues.amount, 
-                    currency: defaultValues.currency,                
-                    date: defaultValues.date?.split('T')[0], 
-                    categoryId: defaultValues.categoryId,
-                    description: defaultValues.description,
-                });
-            }
-        }, [defaultValues, reset]);
+        if (defaultValues) {
+            reset({
+                name: defaultValues.name,
+                amount: defaultValues.amount,
+                currency: defaultValues.currency,
+                date: defaultValues.date?.split('T')[0],
+                categoryId: defaultValues.categoryId,
+                description: defaultValues.description,
+                isRecurring: defaultValues.isRecurring,
+            });
+        }
+    }, [defaultValues, reset]);
 
     return <div className="p-6">
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit, (errors) => console.log("BŁĘDY WALIDACJI:", errors))}>
             <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">Expense Name</label>
                 <input
@@ -127,6 +143,47 @@ export const ExpenseForm = ({ defaultValues, onSubmit, submitLabel, onCancel, is
                 </select>
                 <ErrorMessage message={errors.categoryId?.message} />
             </div>
+
+            {!isEditMode && (
+                <div className={`rounded-md border ${isRecurring ? 'border-teal-500/30 bg-teal-900/10' : 'border-gray-700/50 bg-gray-800/30'} p-4 transition-all duration-300`}>
+                    <div className="flex items-center">
+                        <input
+                            {...register("isRecurring")}
+                            id="isRecurring"
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-gray-600 bg-gray-900 text-teal-600 focus:ring-teal-500 focus:ring-offset-gray-900 cursor-pointer accent-teal-600"
+                        />
+                        <label htmlFor="isRecurring" className="ml-2 block text-sm font-medium text-gray-300 cursor-pointer select-none">
+                            Make this a recurring expense
+                        </label>
+                    </div>
+
+                    {/* Pokazujemy Select tylko gdy checkbox zaznaczony */}
+                    {isRecurring && (
+                        <div className="mt-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <label htmlFor="frequency" className="block text-sm font-medium text-gray-300 mb-1">
+                                Frequency
+                            </label>
+                            <select
+                                {...register("frequency")}
+                                id="frequency"
+                                className={`block w-full rounded-md bg-gray-900 px-3 py-2 text-white border ${errors.frequency ? 'border-red-500' : 'border-gray-600'} focus:border-teal-500 outline-none sm:text-sm cursor-pointer`}
+                            >
+                                <option value="">Select frequency...</option>
+                                {FREQUENCIES.map((freq) => (
+                                    <option key={freq} value={freq}>
+                                        {freq === "Daily" && "Daily (Every day)"}
+                                        {freq === "Weekly" && "Weekly (Every week)"}
+                                        {freq === "Monthly" && "Monthly (Every month)"}
+                                        {freq === "Yearly" && "Yearly (Every year)"}
+                                    </option>
+                                ))}
+                            </select>
+                            <ErrorMessage message={errors.frequency?.message} />
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1">Description <span className="text-gray-500 text-xs">(Optional)</span></label>
