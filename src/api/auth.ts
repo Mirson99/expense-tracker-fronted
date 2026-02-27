@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // api/auth.ts
-const API_URL = 'http://localhost:5275';
+const API_URL = '/api';
 
 export const loginApi = async (email: string, password: string) => {
   const response = await axios.post(`${API_URL}/auth/login`, { email, password });

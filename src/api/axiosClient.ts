@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { User } from '../types/user';
 
-const BASE_URL = 'http://localhost:5275';
+const BASE_URL = '/api';
 
 export const axiosClient = axios.create({
   baseURL: BASE_URL,
