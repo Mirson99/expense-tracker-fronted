@@ -1,0 +1,38 @@
+name: Deploy Frontend to AWS S3
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. Instalujemy środowisko Node.js dla Reacta/Vite
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+
+      # 2. Pobieramy paczki i budujemy projekt (tworzy się folder /dist)
+      - name: Install dependencies
+        run: npm ci # Zgodnie z najnowszymi praktykami używamy ci zamiast install dla CI/CD
+        
+      - name: Build project
+        run: npm run build
+
+      # 3. Logujemy się do AWS używając naszych sekretów
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1
+
+      # 4. Magia - synchronizujemy wygenerowany folder z koszykiem S3
+      - name: Deploy to S3
+        # Używamy flagi --delete, żeby AWS sam usuwał z S3 stare pliki, których już nie ma w kodzie
+        run: aws s3 sync dist/ s3://expense-tracker-demo-bucker --delete
