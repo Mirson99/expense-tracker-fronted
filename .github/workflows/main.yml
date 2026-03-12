@@ -39,4 +39,4 @@ jobs:
         # Używamy flagi --delete, żeby AWS sam usuwał z S3 stare pliki, których już nie ma w kodzie
         run: aws s3 sync dist/ s3://expense-tracker-demo-bucker --delete
       - name: Invalidate CloudFront Cache
-        run: aws cloudfront create-invalidation --distribution-id ID_TWOJEJ_DYSTRYBUCJI --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id E1ZR2UUJKXVGA6 --paths "/*"
