@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { User } from '../types/user';
 
-const BASE_URL = '/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const axiosClient = axios.create({
   baseURL: BASE_URL,
