@@ -1,4 +1,5 @@
 export const formatCurrency = (amount: number, currency: string = 'PLN') => {
+  if (amount === null || amount === undefined) return '-';
   return new Intl.NumberFormat('pl-PL', {
     style: 'currency',
     currency: currency,

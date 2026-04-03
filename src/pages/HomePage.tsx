@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { ExpensesList } from "../features/expenses/components/ExpensesList";
 import { RecurringExpensesList } from "../features/recurring-expenses/components/RecurringExpensesList";
+import { ExpenseStatus } from "../types/expenseStatus";
+
+type Tab = 'transactions' | 'pending' | 'subscriptions';
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<'transactions' | 'subscriptions'>('transactions');
+  const [activeTab, setActiveTab] = useState<Tab>('transactions');
   return (
     <>
       <div className="flex items-center justify-center pt-24">
@@ -30,6 +33,15 @@ export default function HomePage() {
             Transactions
           </button>
           <button
+            onClick={() => setActiveTab('pending')}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'pending'
+                ? 'bg-amber-600 text-white shadow-lg'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700'
+              }`}
+          >
+            Pending Review
+          </button>
+          <button
             onClick={() => setActiveTab('subscriptions')}
             className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'subscriptions'
                 ? 'bg-teal-600 text-white shadow-lg'
@@ -40,12 +52,10 @@ export default function HomePage() {
           </button>
         </div>
       </div>      
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {activeTab === 'transactions' ? (           
-           <ExpensesList />
-        ) : (
-           <RecurringExpensesList />
-        )}
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500" key={activeTab}>
+        {activeTab === 'transactions' && <ExpensesList status={ExpenseStatus.Confirmed} />}
+        {activeTab === 'pending' && <ExpensesList status={ExpenseStatus.RequiresVerification} />}
+        {activeTab === 'subscriptions' && <RecurringExpensesList />}
       </div>
     </>
   );
