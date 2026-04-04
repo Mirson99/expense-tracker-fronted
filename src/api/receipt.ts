@@ -15,7 +15,10 @@ export const getPresignedUrl = async (fileName: string, contentType: string): Pr
 export const uploadReceiptToS3 = async (preSignedUrl: string, file: File): Promise<void> => {
     await fetch(preSignedUrl, {
         method: 'PUT',
-        body: file,
+        headers: {
+            'Content-Type': 'image/jpeg'
+        },
+        body: file
     });
 };
 
