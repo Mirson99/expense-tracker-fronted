@@ -23,7 +23,7 @@ jobs:
         
       - name: Build project
         env:
-          VITE_API_URL: http://13.60.7.185:8080
+          VITE_API_URL: http://16.171.231.80:8080
         run: npm run build
 
       # 3. Logujemy się do AWS używając naszych sekretów
